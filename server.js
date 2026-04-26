@@ -74,7 +74,7 @@ wss.on('connection', ws => {
       } else {
         const room = rooms[roomId];
         if (room.phase !== 'lobby') {
-          ws.send(JSON.stringify({ type: 'error', msg: '遊戲已開始，無法加入' }));
+          ws.send(JSON.stringify({ type: 'error', msg: 'ゲームが始まっています。参加できません。' }));
           return;
         }
         if (!room.players.includes(name)) room.players.push(name);
