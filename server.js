@@ -74,7 +74,7 @@ wss.on('connection', ws => {
       } else {
         const room = rooms[roomId];
         if (room.phase !== 'lobby') {
-          ws.send(JSON.stringify({ type: 'error', msg: 'ゲーム開始しました、参加できません' }));
+          ws.send(JSON.stringify({ type: 'error', msg: '遊戲已開始，無法加入' }));
           return;
         }
         if (!room.players.includes(name)) room.players.push(name);
@@ -113,11 +113,13 @@ wss.on('connection', ws => {
       const elapsed = Date.now() - room.startTs;
       room.results[ws.name] = elapsed;
       broadcastAll(ws.roomId, { type: 'pressed', name: ws.name, ms: elapsed, results: room.results });
+    }
 
-      if (Object.keys(room.results).length >= room.players.length) {
-        room.phase = 'done';
-        broadcastAll(ws.roomId, { type: 'done', results: room.results });
-      }
+    else if (msg.type === 'end_game') {
+      const room = rooms[ws.roomId];
+      if (!room || room.host !== ws.name || room.phase !== 'active') return;
+      room.phase = 'done';
+      broadcastAll(ws.roomId, { type: 'done', results: room.results });
     }
 
     else if (msg.type === 'restart') {
