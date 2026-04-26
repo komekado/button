@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="ja-JP">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -64,7 +64,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
     <div class="card">
       <div style="margin-bottom:14px">
         <label>名前</label>
-        <input id="inp-name" placeholder="輸入名字..." maxlength="16" autocomplete="off"/>
+        <input id="inp-name" placeholder="名前入力してください..." maxlength="16" autocomplete="off"/>
       </div>
       <div>
         <label>ルームコード（空欄のままにすると、ルームを作成してルームオーナーになります）</label>
@@ -238,7 +238,7 @@ function renderHostLive(results,final){
     else if(hasPressed) badge=`<span class="rank-badge" style="font-size:14px;color:#639922">✓</span>`;
     const statusHtml=hasPressed
       ?`<span class="live-status status-pressed">${ms} ms</span>`
-      :`<span class="live-status status-waiting">等待中</span>`;
+      :`<span class="live-status status-waiting">待機中</span>`;
     const pct=hasPressed?Math.round((ms/maxMs)*100):0;
     return `<div class="live-row">${badge}${avatar}<span class="live-name">${name}</span>${statusHtml}<div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
   }).join('')||'<div style="color:#bbb;font-size:13px">プレイヤーの参加をお待ちしています...</div>';
@@ -260,7 +260,7 @@ function updatePlayerResults(results){
   document.getElementById('result-list').innerHTML=allPlayers.map(name=>{
     const idx=sorted.findIndex(([n])=>n===name);
     if(idx===-1) return `<div class="result-row"><span class="medal" style="opacity:0.2">·</span><span class="result-name">${name}</span><span class="result-pending">等待中...</span></div>`;
-    return `<div class="result-row"><span class="medal">${medals[idx]||'·'}</span><span class="result-name">${name}${name===myName?' (你)':''}</span><span class="result-ms">${results[name]} ms</span>${idx===0?'<span class="result-win">最快</span>':''}</div>`;
+    return `<div class="result-row"><span class="medal">${medals[idx]||'·'}</span><span class="result-name">${name}${name===myName?' (あなた)':''}</span><span class="result-ms">${results[name]} ms</span>${idx===0?'<span class="result-win">最速</span>':''}</div>`;
   }).join('');
 }
 
@@ -276,4 +276,7 @@ function sendEndGame(){ws.send(JSON.stringify({type:'end_game'}));}
 function sendRestart(){ws.send(JSON.stringify({type:'restart'}));}
 </script>
 </body>
+  <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #bbb;">
+  Build by：ミカ
+</div>
 </html>
