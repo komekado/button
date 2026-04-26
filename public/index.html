@@ -128,7 +128,10 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
       <div class="section-label">結果</div>
       <div id="result-list"></div>
     </div>
-    </div> </div> <footer style="text-align: center; margin-top: 40px; padding-bottom: 40px; font-size: 14px; color: #aaa; width: 100%;">
+  </div>
+</div>
+
+<footer>
   Built by：ミカ
 </footer>
   
@@ -270,7 +273,7 @@ function updatePlayerResults(results){
   const medals=['🥇','🥈','🥉'];
   document.getElementById('result-list').innerHTML=allPlayers.map(name=>{
     const idx=sorted.findIndex(([n])=>n===name);
-    if(idx===-1) return `<div class="result-row"><span class="medal" style="opacity:0.2">·</span><span class="result-name">${name}</span><span class="result-pending">等待中...</span></div>`;
+    if(idx===-1) return `<div class="result-row"><span class="medal" style="opacity:0.2">·</span><span class="result-name">${name}</span><span class="result-pending">待機中...</span></div>`;
     return `<div class="result-row"><span class="medal">${medals[idx]||'·'}</span><span class="result-name">${name}${name===myName?' (あなた)':''}</span><span class="result-ms">${results[name]} ms</span>${idx===0?'<span class="result-win">最速</span>':''}</div>`;
   }).join('');
 }
