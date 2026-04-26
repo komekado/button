@@ -1,0 +1,13 @@
+{
+  "name": "button-race",
+  "version": "1.0.0",
+  "description": "Multiplayer button reaction speed game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
