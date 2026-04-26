@@ -137,6 +137,14 @@ let allPlayers=[],liveResults={};
 const AC=['#E1F5EE','#E6F1FB','#FAEEDA','#FBEAF0','#EAF3DE'];
 const AT=['#085041','#0C447C','#633806','#72243E','#27500A'];
 
+// 定義音效 (可以使用本地路徑，這裡先用網路範例音效)
+const sfxCount = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+const sfxStart = new Audio('https://actions.google.com/sounds/v1/foley/whoosh_soft.ogg');
+const sfxPress = new Audio('https://actions.google.com/sounds/v1/cartoon/clime_up_the_ladder.ogg');
+
+// 預載音效
+[sfxCount, sfxStart, sfxPress].forEach(s => s.load());
+
 function show(id){['s-join','s-lobby','s-countdown','s-host-game','s-game'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
 function uid(n=4){return Math.random().toString(36).slice(2,2+n).toUpperCase();}
 
@@ -185,9 +193,11 @@ function handle(msg){
   }
 
   if(msg.type==='countdown'){show('s-countdown');document.getElementById('cd-num').textContent='3';}
-  if(msg.type==='tick'){document.getElementById('cd-num').textContent=msg.n;}
+  if(msg.type==='tick'){document.getElementById('cd-num').textContent=msg.n;sfxCount.currentTime = 0;sfxCount.play();}
 
   if(msg.type==='go'){
+    sfxStart.currentTime = 0;
+    sfxStart.play();
     gameStartTs=msg.startTs;pressed=false;liveResults={};
     if(amHost){
       show('s-host-game');
@@ -205,7 +215,7 @@ function handle(msg){
     }
   }
 
-  if(msg.type==='pressed'){liveResults=msg.results||{};if(amHost)renderHostLive(liveResults,false);else updatePlayerResults(liveResults);}
+  if(msg.type==='pressed'){liveResults=msg.results||{};if(amHost)renderHostLive(liveResults,false);else updatePlayerResults(liveResults);sfxPress.currentTime = 0;sfxPress.play();}
   if(msg.type==='done'){
     liveResults=msg.results||{};
     if(amHost){
@@ -274,9 +284,10 @@ function renderResults(results){
 function sendStart(){ws.send(JSON.stringify({type:'start'}));}
 function sendEndGame(){ws.send(JSON.stringify({type:'end_game'}));}
 function sendRestart(){ws.send(JSON.stringify({type:'restart'}));}
+  
+  </div> </div> <footer style="text-align: center; margin-top: 24px; padding-bottom: 24px; font-size: 12px; color: #bbb;">
+    Built by：ミカ
+  </footer>
 </script>
 </body>
-  <div style="text-align: center; margin-top: 24px; font-size: 12px; color: #bbb;">
-  Build by：ミカ
-</div>
 </html>
