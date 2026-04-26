@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>按鈕競速</title>
+<title>早押しクイズボタン</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
@@ -58,19 +58,19 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 </head>
 <body>
 <div id="app">
-  <h1>⚡ 按鈕競速</h1>
+  <h1>⚡ 早押しクイズボタン</h1>
 
   <div id="s-join">
     <div class="card">
       <div style="margin-bottom:14px">
-        <label>你的名字</label>
+        <label>名前</label>
         <input id="inp-name" placeholder="輸入名字..." maxlength="16" autocomplete="off"/>
       </div>
       <div>
-        <label>房間代碼（留空 = 建立房間成為房主）</label>
+        <label>ルームコード（空欄のままにすると、ルームを作成してルームオーナーになります）</label>
         <div class="row">
           <input id="inp-room" placeholder="XXXX" maxlength="8" autocomplete="off" oninput="this.value=this.value.toUpperCase()"/>
-          <button class="btn-primary" onclick="doJoin()">加入 / 建立</button>
+          <button class="btn-primary" onclick="doJoin()">参加 / 作成</button>
         </div>
       </div>
       <div class="err" id="join-err"></div>
@@ -81,47 +81,47 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
     <div class="card">
       <div class="header-row">
         <div>
-          <div class="section-label">房間代碼</div>
+          <div class="section-label">ルームコード</div>
           <div class="room-code" id="lbl-code">----</div>
         </div>
         <span id="lbl-tag" class="tag"></span>
       </div>
-      <div class="section-label">已加入的玩家</div>
+      <div class="section-label">参加済みのプレイヤー</div>
       <div id="player-list" style="margin-bottom:16px;min-height:36px"></div>
       <div id="host-ctrl" class="hidden">
-        <button class="btn-primary" id="btn-start" onclick="sendStart()" style="width:100%" disabled>開始遊戲</button>
-        <div class="status-text" id="start-hint">等待玩家加入...</div>
+        <button class="btn-primary" id="btn-start" onclick="sendStart()" style="width:100%" disabled>ゲームを開始</button>
+        <div class="status-text" id="start-hint">プレイヤーの参加をお待ちしています...</div>
       </div>
-      <div id="guest-wait" class="hidden status-text">等待房主開始遊戲...</div>
+      <div id="guest-wait" class="hidden status-text">オーナーがゲームを開始するのをお待ちしています...</div>
     </div>
   </div>
 
   <div id="s-countdown" class="hidden">
     <div class="card" style="text-align:center">
-      <div class="section-label" style="text-align:center">準備好了嗎？</div>
+      <div class="section-label" style="text-align:center">準備はできましたか？</div>
       <div class="countdown-num" id="cd-num">3</div>
-      <div class="status-text">手放在按鈕上！</div>
+      <div class="status-text">  </div>
     </div>
   </div>
 
   <div id="s-host-game" class="hidden">
     <div class="card" style="margin-bottom:12px">
-      <div class="host-label">房主即時看板</div>
-      <div style="font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:16px" id="host-game-status">等待開始...</div>
+      <div class="host-label">オーナー向けリアルタイムダッシュボード</div>
+      <div style="font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:16px" id="host-game-status">開始をお待ちしています...</div>
       <div id="host-live-list"></div>
       <div id="host-end-btn-wrap" style="margin-top:16px;display:none">
-        <button onclick="sendEndGame()" style="width:100%;background:#1a1a1a;color:#fff;border-color:#1a1a1a">結束遊戲</button>
+        <button onclick="sendEndGame()" style="width:100%;background:#1a1a1a;color:#fff;border-color:#1a1a1a">ゲームを終了します</button>
       </div>
       <div id="host-restart-wrap" style="margin-top:16px;display:none">
-        <button onclick="sendRestart()" style="width:100%">再玩一次</button>
+        <button onclick="sendRestart()" style="width:100%">もう一度プレイ</button>
       </div>
     </div>
   </div>
 
   <div id="s-game" class="hidden">
     <div class="card" style="margin-bottom:12px">
-      <div class="status-text" id="game-status" style="margin-bottom:16px;font-size:16px;color:#1a1a1a;font-weight:500">等待開始...</div>
-      <button id="the-btn" disabled onclick="pressButton()">按我！</button>
+      <div class="status-text" id="game-status" style="margin-bottom:16px;font-size:16px;color:#1a1a1a;font-weight:500">開始をお待ちしています...</div>
+      <button id="the-btn" disabled onclick="pressButton()">押して！</button>
       <div class="status-text" id="my-result"></div>
     </div>
     <div class="card hidden" id="result-card">
@@ -144,7 +144,7 @@ function doJoin(){
   const name=document.getElementById('inp-name').value.trim();
   const room=document.getElementById('inp-room').value.trim().toUpperCase();
   const err=document.getElementById('join-err');
-  if(!name){err.textContent='請輸入名字';return;}
+  if(!name){err.textContent='名前を入力してください';return;}
   myName=name;myRoom=room||uid();
   document.getElementById('inp-room').value=myRoom;
   connect();
@@ -155,7 +155,7 @@ function connect(){
   ws=new WebSocket(`${proto}://${location.host}`);
   ws.onopen=()=>{ws.send(JSON.stringify({type:'join',name:myName,room:myRoom}));};
   ws.onmessage=e=>{try{handle(JSON.parse(e.data));}catch(ex){}};
-  ws.onclose=()=>{document.getElementById('join-err').textContent='連線中斷，請重新整理';};
+  ws.onclose=()=>{document.getElementById('join-err').textContent='接続が切断されました、ページを更新してください。';};
 }
 
 function handle(msg){
@@ -165,14 +165,14 @@ function handle(msg){
     myRoom=msg.room;amHost=msg.host===myName;
     allPlayers=msg.players||[];liveResults=msg.results||{};
     document.getElementById('lbl-code').textContent=myRoom;
-    document.getElementById('lbl-tag').textContent=amHost?'房主（觀察者）':'玩家';
+    document.getElementById('lbl-tag').textContent=amHost?'オーナー（観察者）':'プレイヤー';
     document.getElementById('lbl-tag').className='tag '+(amHost?'tag-host':'tag-player');
     renderLobbyPlayers(allPlayers);
     if(amHost){
       document.getElementById('host-ctrl').classList.remove('hidden');
       document.getElementById('guest-wait').classList.add('hidden');
       document.getElementById('btn-start').disabled=allPlayers.length<1;
-      document.getElementById('start-hint').textContent=allPlayers.length<1?'等待玩家加入...':'可以開始囉！';
+      document.getElementById('start-hint').textContent=allPlayers.length<1?'プレイヤーの参加をお待ちしています...':'さあ、始めましょう！';
     } else {
       document.getElementById('guest-wait').classList.remove('hidden');
       document.getElementById('host-ctrl').classList.add('hidden');
@@ -191,15 +191,15 @@ function handle(msg){
     gameStartTs=msg.startTs;pressed=false;liveResults={};
     if(amHost){
       show('s-host-game');
-      document.getElementById('host-game-status').textContent='遊戲進行中...';
+      document.getElementById('host-game-status').textContent='ゲーム進行中...';
       document.getElementById('host-end-btn-wrap').style.display='block';
       document.getElementById('host-restart-wrap').style.display='none';
       renderHostLive({},false);
     } else {
       show('s-game');
-      document.getElementById('game-status').textContent='快按！';
+      document.getElementById('game-status').textContent='押して！';
       const btn=document.getElementById('the-btn');
-      btn.disabled=false;btn.textContent='按我！';
+      btn.disabled=false;btn.textContent='ここ押して！';
       document.getElementById('my-result').textContent='';
       document.getElementById('result-card').classList.add('hidden');
     }
@@ -209,7 +209,7 @@ function handle(msg){
   if(msg.type==='done'){
     liveResults=msg.results||{};
     if(amHost){
-      document.getElementById('host-game-status').textContent='遊戲結束！';
+      document.getElementById('host-game-status').textContent='ゲーム終了！';
       renderHostLive(liveResults,true);
       document.getElementById('host-end-btn-wrap').style.display='none';
       document.getElementById('host-restart-wrap').style.display='block';
@@ -219,7 +219,7 @@ function handle(msg){
 
 function renderLobbyPlayers(players){
   document.getElementById('player-list').innerHTML=players.length===0
-    ?'<span style="font-size:13px;color:#bbb">還沒有玩家加入...</span>'
+    ?'<span style="font-size:13px;color:#bbb">まだプレイヤーは参加していません...</span>'
     :players.map(p=>`<span class="player-chip"><span class="dot"></span>${p}</span>`).join('');
 }
 
@@ -241,15 +241,15 @@ function renderHostLive(results,final){
       :`<span class="live-status status-waiting">等待中</span>`;
     const pct=hasPressed?Math.round((ms/maxMs)*100):0;
     return `<div class="live-row">${badge}${avatar}<span class="live-name">${name}</span>${statusHtml}<div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
-  }).join('')||'<div style="color:#bbb;font-size:13px">等待玩家加入...</div>';
+  }).join('')||'<div style="color:#bbb;font-size:13px">プレイヤーの参加をお待ちしています...</div>';
 }
 
 function pressButton(){
   if(pressed||amHost)return;pressed=true;
   const ms=Date.now()-(gameStartTs||Date.now());
   document.getElementById('the-btn').disabled=true;
-  document.getElementById('the-btn').textContent='✓ 已按下';
-  document.getElementById('my-result').textContent='你的反應：'+ms+' ms';
+  document.getElementById('the-btn').textContent='✓ ボタン押しました';
+  document.getElementById('my-result').textContent='反応速度：'+ms+' ms';
   ws.send(JSON.stringify({type:'press'}));
 }
 
@@ -267,7 +267,7 @@ function updatePlayerResults(results){
 function renderResults(results){
   show('s-game');
   document.getElementById('result-card').classList.remove('hidden');
-  document.getElementById('game-status').textContent='遊戲結束！';
+  document.getElementById('game-status').textContent='ゲーム終了！';
   updatePlayerResults(results);
 }
 
