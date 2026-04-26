@@ -109,9 +109,12 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
       <div class="host-label">房主即時看板</div>
       <div style="font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:16px" id="host-game-status">等待開始...</div>
       <div id="host-live-list"></div>
-    </div>
-    <div id="host-restart-card" class="card hidden" style="text-align:center">
-      <button onclick="sendRestart()" style="width:100%">再玩一次</button>
+      <div id="host-end-btn-wrap" style="margin-top:16px;display:none">
+        <button onclick="sendEndGame()" style="width:100%;background:#1a1a1a;color:#fff;border-color:#1a1a1a">結束遊戲</button>
+      </div>
+      <div id="host-restart-wrap" style="margin-top:16px;display:none">
+        <button onclick="sendRestart()" style="width:100%">再玩一次</button>
+      </div>
     </div>
   </div>
 
@@ -176,7 +179,7 @@ function handle(msg){
     }
     if(msg.phase==='lobby') show('s-lobby');
     if(msg.phase==='done'){
-      if(amHost){show('s-host-game');renderHostLive(msg.results,true);document.getElementById('host-restart-card').classList.remove('hidden');}
+      if(amHost){show('s-host-game');renderHostLive(msg.results,true);document.getElementById('host-end-btn-wrap').style.display='none';document.getElementById('host-restart-wrap').style.display='block';}
       else{show('s-game');renderResults(msg.results);}
     }
   }
@@ -189,7 +192,8 @@ function handle(msg){
     if(amHost){
       show('s-host-game');
       document.getElementById('host-game-status').textContent='遊戲進行中...';
-      document.getElementById('host-restart-card').classList.add('hidden');
+      document.getElementById('host-end-btn-wrap').style.display='block';
+      document.getElementById('host-restart-wrap').style.display='none';
       renderHostLive({},false);
     } else {
       show('s-game');
@@ -207,7 +211,8 @@ function handle(msg){
     if(amHost){
       document.getElementById('host-game-status').textContent='遊戲結束！';
       renderHostLive(liveResults,true);
-      document.getElementById('host-restart-card').classList.remove('hidden');
+      document.getElementById('host-end-btn-wrap').style.display='none';
+      document.getElementById('host-restart-wrap').style.display='block';
     } else {renderResults(liveResults);}
   }
 }
@@ -267,6 +272,7 @@ function renderResults(results){
 }
 
 function sendStart(){ws.send(JSON.stringify({type:'start'}));}
+function sendEndGame(){ws.send(JSON.stringify({type:'end_game'}));}
 function sendRestart(){ws.send(JSON.stringify({type:'restart'}));}
 </script>
 </body>
