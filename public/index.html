@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
-#app{width:100%;max-width:520px}
+#app{width:100%;max-width:560px}
 h1{font-size:22px;font-weight:600;text-align:center;margin-bottom:2rem;color:#1a1a1a;letter-spacing:-0.02em}
 .card{background:#fff;border:1px solid #e5e3de;border-radius:16px;padding:1.5rem;margin-bottom:12px}
 label{display:block;font-size:12px;font-weight:600;color:#888;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px}
@@ -21,14 +21,14 @@ button:active{transform:scale(0.97)}
 button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 .btn-primary{background:#D85A30;color:#fff;border-color:#D85A30;font-size:15px}
 .btn-primary:hover{background:#c04f28;border-color:#c04f28}
-.room-code{font-size:32px;font-weight:700;letter-spacing:0.2em;color:#1a1a1a;text-align:center;padding:0.5rem 0}
+.room-code{font-size:36px;font-weight:700;letter-spacing:0.2em;color:#1a1a1a;text-align:center;padding:0.5rem 0}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px}
-.tag-host{background:#E1F5EE;color:#085041}
+.tag-host{background:#FAEEDA;color:#633806}
 .tag-player{background:#E6F1FB;color:#0C447C}
 .section-label{font-size:12px;font-weight:600;color:#888;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px}
 .player-chip{display:inline-flex;align-items:center;gap:6px;background:#f5f4f0;border:1px solid #e5e3de;border-radius:99px;padding:5px 12px;font-size:13px;margin:3px;font-weight:500}
 .dot{width:7px;height:7px;border-radius:50%;background:#639922;display:inline-block}
-#the-btn{width:100%;padding:2.5rem;border-radius:14px;background:#D85A30;border:none;color:#fff;font-size:32px;font-weight:700;cursor:pointer;transition:transform 0.07s,background 0.1s;user-select:none;letter-spacing:-0.01em}
+#the-btn{width:100%;padding:2.5rem;border-radius:14px;background:#D85A30;border:none;color:#fff;font-size:32px;font-weight:700;cursor:pointer;transition:transform 0.07s,background 0.1s;user-select:none}
 #the-btn:active{transform:scale(0.96)}
 #the-btn:disabled{background:#ccc;cursor:not-allowed}
 .countdown-num{font-size:80px;font-weight:700;text-align:center;color:#D85A30;line-height:1;padding:1.5rem 0}
@@ -36,14 +36,24 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 .result-row:last-child{border-bottom:none}
 .medal{font-size:22px;width:28px;text-align:center}
 .result-name{flex:1;font-weight:600;color:#1a1a1a}
-.result-ms{color:#888;font-size:13px}
+.result-ms{color:#888;font-size:13px;font-variant-numeric:tabular-nums}
 .result-win{background:#E1F5EE;color:#085041;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
+.result-pending{color:#bbb;font-size:13px;font-style:italic}
 .err{font-size:12px;color:#c04f28;min-height:16px;margin-top:4px}
 .status-text{text-align:center;font-size:14px;color:#888;min-height:20px;margin-top:8px}
 .hidden{display:none}
 .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.conn-dot{width:8px;height:8px;border-radius:50%;background:#639922;display:inline-block;margin-right:6px}
-.conn-dot.off{background:#E24B4A}
+.live-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f0eeea}
+.live-row:last-child{border-bottom:none}
+.live-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.live-name{flex:1;font-weight:600;font-size:15px;color:#1a1a1a}
+.live-status{font-size:13px;font-variant-numeric:tabular-nums;text-align:right;min-width:70px}
+.status-waiting{color:#bbb}
+.status-pressed{color:#1a1a1a;font-weight:700}
+.bar-wrap{width:80px;height:8px;background:#f0eeea;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;background:#D85A30;border-radius:99px;transition:width 0.3s}
+.rank-badge{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.host-label{font-size:11px;font-weight:700;color:#D85A30;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -57,7 +67,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
         <input id="inp-name" placeholder="輸入名字..." maxlength="16" autocomplete="off"/>
       </div>
       <div>
-        <label>房間代碼（留空 = 建立新房間）</label>
+        <label>房間代碼（留空 = 建立房間成為房主）</label>
         <div class="row">
           <input id="inp-room" placeholder="XXXX" maxlength="8" autocomplete="off" oninput="this.value=this.value.toUpperCase()"/>
           <button class="btn-primary" onclick="doJoin()">加入 / 建立</button>
@@ -76,11 +86,11 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
         </div>
         <span id="lbl-tag" class="tag"></span>
       </div>
-      <div class="section-label">玩家列表</div>
+      <div class="section-label">已加入的玩家</div>
       <div id="player-list" style="margin-bottom:16px;min-height:36px"></div>
       <div id="host-ctrl" class="hidden">
         <button class="btn-primary" id="btn-start" onclick="sendStart()" style="width:100%" disabled>開始遊戲</button>
-        <div class="status-text">至少 2 人才能開始</div>
+        <div class="status-text" id="start-hint">等待玩家加入...</div>
       </div>
       <div id="guest-wait" class="hidden status-text">等待房主開始遊戲...</div>
     </div>
@@ -94,6 +104,17 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
     </div>
   </div>
 
+  <div id="s-host-game" class="hidden">
+    <div class="card" style="margin-bottom:12px">
+      <div class="host-label">房主即時看板</div>
+      <div style="font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:16px" id="host-game-status">等待開始...</div>
+      <div id="host-live-list"></div>
+    </div>
+    <div id="host-restart-card" class="card hidden" style="text-align:center">
+      <button onclick="sendRestart()" style="width:100%">再玩一次</button>
+    </div>
+  </div>
+
   <div id="s-game" class="hidden">
     <div class="card" style="margin-bottom:12px">
       <div class="status-text" id="game-status" style="margin-bottom:16px;font-size:16px;color:#1a1a1a;font-weight:500">等待開始...</div>
@@ -101,29 +122,27 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
       <div class="status-text" id="my-result"></div>
     </div>
     <div class="card hidden" id="result-card">
-      <div class="section-label">結果排行</div>
+      <div class="section-label">結果</div>
       <div id="result-list"></div>
-      <div id="host-restart" class="hidden" style="margin-top:16px">
-        <button onclick="sendRestart()" style="width:100%">再玩一次</button>
-      </div>
     </div>
   </div>
 </div>
 
 <script>
-let ws, myName='', myRoom='', amHost=false, pressed=false, gameStartTs=null;
+let ws,myName='',myRoom='',amHost=false,pressed=false,gameStartTs=null;
+let allPlayers=[],liveResults={};
+const AC=['#E1F5EE','#E6F1FB','#FAEEDA','#FBEAF0','#EAF3DE'];
+const AT=['#085041','#0C447C','#633806','#72243E','#27500A'];
 
-function show(id){ ['s-join','s-lobby','s-countdown','s-game'].forEach(s=>document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-
-function uid(n=4){ return Math.random().toString(36).slice(2,2+n).toUpperCase(); }
+function show(id){['s-join','s-lobby','s-countdown','s-host-game','s-game'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+function uid(n=4){return Math.random().toString(36).slice(2,2+n).toUpperCase();}
 
 function doJoin(){
   const name=document.getElementById('inp-name').value.trim();
   const room=document.getElementById('inp-room').value.trim().toUpperCase();
   const err=document.getElementById('join-err');
   if(!name){err.textContent='請輸入名字';return;}
-  myName=name;
-  myRoom=room||uid();
+  myName=name;myRoom=room||uid();
   document.getElementById('inp-room').value=myRoom;
   connect();
 }
@@ -131,50 +150,97 @@ function doJoin(){
 function connect(){
   const proto=location.protocol==='https:'?'wss':'ws';
   ws=new WebSocket(`${proto}://${location.host}`);
-  ws.onopen=()=>{ ws.send(JSON.stringify({type:'join',name:myName,room:myRoom})); };
-  ws.onmessage=e=>{ try{handle(JSON.parse(e.data));}catch(ex){} };
-  ws.onclose=()=>{ document.getElementById('join-err').textContent='連線中斷，請重新整理'; };
+  ws.onopen=()=>{ws.send(JSON.stringify({type:'join',name:myName,room:myRoom}));};
+  ws.onmessage=e=>{try{handle(JSON.parse(e.data));}catch(ex){}};
+  ws.onclose=()=>{document.getElementById('join-err').textContent='連線中斷，請重新整理';};
 }
 
 function handle(msg){
-  if(msg.type==='error'){ document.getElementById('join-err').textContent=msg.msg; return; }
+  if(msg.type==='error'){document.getElementById('join-err').textContent=msg.msg;return;}
 
   if(msg.type==='state'){
-    myRoom=msg.room; amHost=msg.host===myName;
+    myRoom=msg.room;amHost=msg.host===myName;
+    allPlayers=msg.players||[];liveResults=msg.results||{};
     document.getElementById('lbl-code').textContent=myRoom;
-    document.getElementById('lbl-tag').textContent=amHost?'房主':'玩家';
+    document.getElementById('lbl-tag').textContent=amHost?'房主（觀察者）':'玩家';
     document.getElementById('lbl-tag').className='tag '+(amHost?'tag-host':'tag-player');
-    renderPlayers(msg.players, msg.host);
-    if(amHost){ document.getElementById('host-ctrl').classList.remove('hidden'); document.getElementById('btn-start').disabled=msg.players.length<2; }
-    else { document.getElementById('guest-wait').classList.remove('hidden'); }
+    renderLobbyPlayers(allPlayers);
+    if(amHost){
+      document.getElementById('host-ctrl').classList.remove('hidden');
+      document.getElementById('guest-wait').classList.add('hidden');
+      document.getElementById('btn-start').disabled=allPlayers.length<1;
+      document.getElementById('start-hint').textContent=allPlayers.length<1?'等待玩家加入...':'可以開始囉！';
+    } else {
+      document.getElementById('guest-wait').classList.remove('hidden');
+      document.getElementById('host-ctrl').classList.add('hidden');
+    }
     if(msg.phase==='lobby') show('s-lobby');
-    if(msg.phase==='done'){ show('s-game'); renderResults(msg.results); }
+    if(msg.phase==='done'){
+      if(amHost){show('s-host-game');renderHostLive(msg.results,true);document.getElementById('host-restart-card').classList.remove('hidden');}
+      else{show('s-game');renderResults(msg.results);}
+    }
   }
 
-  if(msg.type==='countdown'){ show('s-countdown'); startCountdown(); }
-  if(msg.type==='tick'){ document.getElementById('cd-num').textContent=msg.n; }
+  if(msg.type==='countdown'){show('s-countdown');document.getElementById('cd-num').textContent='3';}
+  if(msg.type==='tick'){document.getElementById('cd-num').textContent=msg.n;}
+
   if(msg.type==='go'){
-    gameStartTs=msg.startTs; pressed=false;
-    show('s-game');
-    document.getElementById('game-status').textContent='快按！';
-    const btn=document.getElementById('the-btn');
-    btn.disabled=false; btn.textContent='按我！';
-    document.getElementById('my-result').textContent='';
-    document.getElementById('result-card').classList.add('hidden');
-    document.getElementById('result-list').innerHTML='';
-    if(amHost) document.getElementById('host-restart').classList.add('hidden');
+    gameStartTs=msg.startTs;pressed=false;liveResults={};
+    if(amHost){
+      show('s-host-game');
+      document.getElementById('host-game-status').textContent='遊戲進行中...';
+      document.getElementById('host-restart-card').classList.add('hidden');
+      renderHostLive({},false);
+    } else {
+      show('s-game');
+      document.getElementById('game-status').textContent='快按！';
+      const btn=document.getElementById('the-btn');
+      btn.disabled=false;btn.textContent='按我！';
+      document.getElementById('my-result').textContent='';
+      document.getElementById('result-card').classList.add('hidden');
+    }
   }
-  if(msg.type==='pressed'){ updateResults(msg.results); }
-  if(msg.type==='done'){ renderResults(msg.results); }
+
+  if(msg.type==='pressed'){liveResults=msg.results||{};if(amHost)renderHostLive(liveResults,false);else updatePlayerResults(liveResults);}
+  if(msg.type==='done'){
+    liveResults=msg.results||{};
+    if(amHost){
+      document.getElementById('host-game-status').textContent='遊戲結束！';
+      renderHostLive(liveResults,true);
+      document.getElementById('host-restart-card').classList.remove('hidden');
+    } else {renderResults(liveResults);}
+  }
 }
 
-function startCountdown(){
-  let n=3; document.getElementById('cd-num').textContent=n;
+function renderLobbyPlayers(players){
+  document.getElementById('player-list').innerHTML=players.length===0
+    ?'<span style="font-size:13px;color:#bbb">還沒有玩家加入...</span>'
+    :players.map(p=>`<span class="player-chip"><span class="dot"></span>${p}</span>`).join('');
+}
+
+function renderHostLive(results,final){
+  const medals=['🥇','🥈','🥉'];
+  const sorted=Object.entries(results).sort((a,b)=>a[1]-b[1]);
+  const maxMs=sorted.length?sorted[sorted.length-1][1]:1;
+  document.getElementById('host-live-list').innerHTML=allPlayers.map((name,i)=>{
+    const ci=i%AC.length;
+    const avatar=`<div class="live-avatar" style="background:${AC[ci]};color:${AT[ci]}">${name.slice(0,2).toUpperCase()}</div>`;
+    const rankIdx=sorted.findIndex(([n])=>n===name);
+    const hasPressed=rankIdx!==-1;
+    const ms=results[name];
+    let badge=`<span class="rank-badge" style="opacity:0.2">·</span>`;
+    if(hasPressed&&final) badge=`<span class="rank-badge">${medals[rankIdx]||'·'}</span>`;
+    else if(hasPressed) badge=`<span class="rank-badge" style="font-size:14px;color:#639922">✓</span>`;
+    const statusHtml=hasPressed
+      ?`<span class="live-status status-pressed">${ms} ms</span>`
+      :`<span class="live-status status-waiting">等待中</span>`;
+    const pct=hasPressed?Math.round((ms/maxMs)*100):0;
+    return `<div class="live-row">${badge}${avatar}<span class="live-name">${name}</span>${statusHtml}<div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('')||'<div style="color:#bbb;font-size:13px">等待玩家加入...</div>';
 }
 
 function pressButton(){
-  if(pressed) return;
-  pressed=true;
+  if(pressed||amHost)return;pressed=true;
   const ms=Date.now()-(gameStartTs||Date.now());
   document.getElementById('the-btn').disabled=true;
   document.getElementById('the-btn').textContent='✓ 已按下';
@@ -182,29 +248,26 @@ function pressButton(){
   ws.send(JSON.stringify({type:'press'}));
 }
 
-function sendStart(){ ws.send(JSON.stringify({type:'start'})); }
-function sendRestart(){ ws.send(JSON.stringify({type:'restart'})); }
-
-function renderPlayers(players, host){
-  document.getElementById('player-list').innerHTML=players.map(p=>`<span class="player-chip"><span class="dot"></span>${p}${p===host?' 👑':''}</span>`).join('');
-}
-
-function updateResults(results){
+function updatePlayerResults(results){
   document.getElementById('result-card').classList.remove('hidden');
   const sorted=Object.entries(results).sort((a,b)=>a[1]-b[1]);
   const medals=['🥇','🥈','🥉'];
-  document.getElementById('result-list').innerHTML=sorted.map(([n,ms],i)=>`<div class="result-row"><span class="medal">${medals[i]||'·'}</span><span class="result-name">${n}${n===myName?' (你)':''}</span><span class="result-ms">${ms} ms</span></div>`).join('');
+  document.getElementById('result-list').innerHTML=allPlayers.map(name=>{
+    const idx=sorted.findIndex(([n])=>n===name);
+    if(idx===-1) return `<div class="result-row"><span class="medal" style="opacity:0.2">·</span><span class="result-name">${name}</span><span class="result-pending">等待中...</span></div>`;
+    return `<div class="result-row"><span class="medal">${medals[idx]||'·'}</span><span class="result-name">${name}${name===myName?' (你)':''}</span><span class="result-ms">${results[name]} ms</span>${idx===0?'<span class="result-win">最快</span>':''}</div>`;
+  }).join('');
 }
 
 function renderResults(results){
-  if(!results||Object.keys(results).length===0) return;
+  show('s-game');
   document.getElementById('result-card').classList.remove('hidden');
   document.getElementById('game-status').textContent='遊戲結束！';
-  const sorted=Object.entries(results).sort((a,b)=>a[1]-b[1]);
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('result-list').innerHTML=sorted.map(([n,ms],i)=>`<div class="result-row"><span class="medal">${medals[i]||'·'}</span><span class="result-name">${n}${n===myName?' (你)':''}</span><span class="result-ms">${ms} ms</span>${i===0?'<span class="result-win">最快！</span>':''}</div>`).join('');
-  if(amHost) document.getElementById('host-restart').classList.remove('hidden');
+  updatePlayerResults(results);
 }
+
+function sendStart(){ws.send(JSON.stringify({type:'start'}));}
+function sendRestart(){ws.send(JSON.stringify({type:'restart'}));}
 </script>
 </body>
 </html>

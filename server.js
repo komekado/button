@@ -4,7 +4,6 @@ const path = require('path');
 const { WebSocketServer } = require('ws');
 
 const PORT = process.env.PORT || 3000;
-
 const rooms = {};
 
 const server = http.createServer((req, res) => {
@@ -59,11 +58,11 @@ wss.on('connection', ws => {
     if (msg.type === 'join') {
       const { name, room: roomId } = msg;
       if (!name || !roomId) return;
-
       ws.name = name;
       ws.roomId = roomId;
 
       if (!rooms[roomId]) {
+        ws.isHost = true;
         rooms[roomId] = {
           host: name,
           phase: 'lobby',
@@ -72,23 +71,22 @@ wss.on('connection', ws => {
           startTs: null,
           clients: new Set()
         };
+      } else {
+        const room = rooms[roomId];
+        if (room.phase !== 'lobby') {
+          ws.send(JSON.stringify({ type: 'error', msg: '遊戲已開始，無法加入' }));
+          return;
+        }
+        if (!room.players.includes(name)) room.players.push(name);
       }
 
-      const room = rooms[roomId];
-      if (room.phase !== 'lobby') {
-        ws.send(JSON.stringify({ type: 'error', msg: '遊戲已開始，無法加入' }));
-        return;
-      }
-
-      if (!room.players.includes(name)) room.players.push(name);
-      room.clients.add(ws);
-
+      rooms[roomId].clients.add(ws);
       broadcastAll(roomId, roomState(roomId));
     }
 
     else if (msg.type === 'start') {
       const room = rooms[ws.roomId];
-      if (!room || room.host !== ws.name || room.players.length < 2) return;
+      if (!room || room.host !== ws.name || room.players.length < 1) return;
       room.phase = 'countdown';
       broadcastAll(ws.roomId, { type: 'countdown' });
 
@@ -110,6 +108,7 @@ wss.on('connection', ws => {
     else if (msg.type === 'press') {
       const room = rooms[ws.roomId];
       if (!room || room.phase !== 'active') return;
+      if (ws.isHost) return;
       if (room.results[ws.name] !== undefined) return;
       const elapsed = Date.now() - room.startTs;
       room.results[ws.name] = elapsed;
@@ -135,13 +134,12 @@ wss.on('connection', ws => {
     const room = rooms[ws.roomId];
     if (!room) return;
     room.clients.delete(ws);
-    room.players = room.players.filter(p => p !== ws.name);
+    if (!ws.isHost) {
+      room.players = room.players.filter(p => p !== ws.name);
+    }
     if (room.clients.size === 0) {
       delete rooms[ws.roomId];
     } else {
-      if (room.host === ws.name && room.players.length > 0) {
-        room.host = room.players[0];
-      }
       broadcastAll(ws.roomId, roomState(ws.roomId));
     }
   });
