@@ -4,6 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>早押しクイズボタン</title>
+  </div> </div> <footer style="text-align: center; margin-top: 40px; padding-bottom: 40px; font-size: 14px; color: #aaa; width: 100%; display: block !important;">
+    Built by：ミカ
+  </footer>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
@@ -285,9 +288,6 @@ function sendStart(){ws.send(JSON.stringify({type:'start'}));}
 function sendEndGame(){ws.send(JSON.stringify({type:'end_game'}));}
 function sendRestart(){ws.send(JSON.stringify({type:'restart'}));}
   
-  </div> </div> <footer style="text-align: center; margin-top: 24px; padding-bottom: 24px; font-size: 12px; color: #bbb;">
-    Built by：ミカ
-  </footer>
 </script>
 </body>
 </html>
